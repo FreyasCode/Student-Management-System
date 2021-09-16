@@ -1,0 +1,278 @@
+/*
+ * This is the Teacher subclass inherits the Person superclass. It stores information that is specific to 
+ * a teacher such as student list, teaching subject, user ID and password. 
+ * This class includes default (file IO) and overloaded constructors (constructing obj). 
+ * The attributes are encapsulated and can be accessed using getters and setters. 
+ * There are also methods to sort the student list by first name, last name, average high to low, average
+ * low to high. More methods for calculating class average, median, mode and standard deviation are included. 
+ * Lastly, there is an equals method for comparing obj -- return true if it is the same as the teacher obj 
+ * calling, and a toString method that returns information about the teacher object. 
+ */
+
+import java.util.Arrays;
+
+public class Teacher extends  Person implements java.io.Serializable {
+	private  LinkedList< Student> list; // student list with student objects
+	private String subject; // teaching subject
+	private String password; // teacher's password
+	private String ID; // teacher ID
+
+	// default constructor that sets default values for a teacher obj
+	public  Teacher() {
+		super();
+		this.list = null;
+		this.subject = null;
+		this.password = null;
+		this.ID = null;
+	}
+
+	// overloaded constructor that assigned values to the teacher obj's attributes
+	public  Teacher(String fn, String ln, String gender, byte age,  LinkedList< Student> list,
+			String subject, String password, String ID) {
+		super(fn, ln, gender, age);
+		this.list = list;
+		this.subject = subject;
+		this.password = password;
+		this.ID = ID;
+	}
+
+	// getter method returns teacher ID as String
+	public String getID() {
+		return ID;
+	}
+
+	// setter method for setting the teacher ID
+	public void setID(String iD) {
+		ID = iD;
+	}
+
+	// getter method returns student list as  LinkedList
+	public  LinkedList< Student> getList() {
+		return list;
+	}
+
+	// setter method for setting student list
+	public void setList( LinkedList< Student> list) {
+		this.list = list;
+	}
+
+	// getter method for returning password as String
+	public String getPassword() {
+		return password;
+	}
+
+	// setter method for setting password
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	// insertion sort by students' average, highest to lowest
+	public  LinkedList< Student> sortByAvH() {
+		 LinkedList< Student> modified = createTempList();
+		for (int i = 2; i <= modified.getLength(); i++) {
+
+			int pos = i; 
+
+			 Student temp = modified.findNode(i).getCargo();
+
+			// assume previous all sorted, move back by one if less
+			while (pos > 1 && temp.calcAverage() > modified.findNode(pos - 1).getCargo().calcAverage()) {
+
+				modified.set(pos, modified.findNode(pos - 1).getCargo()); // switch cargo if lower
+				pos--; // previous index
+
+			}
+			modified.set(pos, temp); // move temp to correct index
+		}
+
+		return modified;
+	}
+
+	// insertion sort by students' average, lowest to highest
+	public  LinkedList< Student> sortByAvL() {
+		 LinkedList< Student> modified = createTempList();
+		for (int i = 2; i <= modified.getLength(); i++) { // starting from second node
+
+			int pos = i; // start looping here
+
+			 Student temp = modified.findNode(i).getCargo(); // store as temp else value lost
+
+			// assume previous all sorted, move back by one if more
+			while (pos > 1 && temp.calcAverage() < modified.findNode(pos - 1).getCargo().calcAverage()) {
+
+				modified.set(pos, modified.findNode(pos - 1).getCargo());
+				pos--; // previous index
+
+			}
+
+			modified.set(pos, temp); // move temp to correct index
+		}
+
+		return modified;
+	}
+
+	// returns class average
+	public float calcAverage() {
+		float sum = 0; // initialize sum
+
+		for (int i = 1; i <= list.getLength(); i++) { // loop through student list and add up averages
+
+			sum += list.findNode(i).getCargo().calcAverage(); // calc sum
+
+		}
+
+		return Math.round(sum / list.getLength() * 100) / 100.0f; // rounded to two dec
+
+	}
+
+	// return the median for students' average
+	public float median() {
+
+		 LinkedList< Student> temp = sortByAvH(); // temp is sorted list by average
+
+		if (temp.getLength() == 0) { // if empty student list, median returned as 0.0
+			return 0f;
+		}
+		// if even number of items
+		if (temp.getLength() % 2 == 0) // even number, find average of the two middle numbers
+			return Math.round(((temp.findNode(temp.getLength() / 2).getCargo().calcAverage()
+					+ temp.findNode(temp.getLength() / 2 + 1).getCargo().calcAverage()) / 2) * 100) / 100.0f;
+		/**
+		 * check rounding here, even number two dec
+		 */
+
+		// odd number of items, return middle value
+		return temp.findNode((temp.getLength() + 1) / 2).getCargo().calcAverage();
+	}
+	// [1,2,3,4]
+	// [1,2,3,4,5]
+
+	// returns the mode as float, 0.0 if mode does not exist
+	public float mode() {
+		float mode = 0f; // stores the mode value
+		int modeCount = 1; // stores the greatest count of mode
+
+		for (int i = 1; i <= list.getLength(); i++) { // the same as number as this index counted
+
+			int count = 0; // counts the number of repetition for current average
+
+			for (int j = 1; j <= list.getLength(); j++) {
+
+				if (list.findNode(i).getCargo().calcAverage() == list.findNode(j).getCargo().calcAverage())
+					count++; // add to count variable
+
+			}
+
+			if (count > modeCount) { // if this round of counting is greater than the count for the mode found
+
+				modeCount = count; // update mode count for greatest number of appearance
+				mode = list.findNode(i).getCargo().calcAverage(); // update value of mode
+
+			}
+		}
+
+		return mode; // return mode value as float
+	}
+
+	// returns the standard deviation of the class (average) as a float value
+	public float stDev() {
+		float sum = 0.0f; // initialize local sum variable
+
+		int length = list.getLength(); // length of linked list
+
+		float mean = this.calcAverage(); // calculate the class average
+
+		for (int i = 1; i <= list.getLength(); i++) { // loop through student list
+			// (difference between individual value and mean)^2
+			sum += Math.pow(list.findNode(i).getCargo().calcAverage() - mean, 2);
+		}
+
+		// assume the whole class is population not sample
+		return Math.round(((float) Math.sqrt(sum / length)) * 100) / 100.0f;
+	}
+
+	// helper method: creates temp list the same as "list" so original order is kept
+	private  LinkedList< Student> createTempList() {
+
+		 LinkedList< Student> temp = new  LinkedList< Student>();
+
+		for (int i = 1; i <= list.getLength(); i++) { // loop through the linked list of student obj
+			temp.addNode(list.findNode(i).getCargo(), i); // add to temp list
+		}
+
+		return temp; // temp list returned
+
+	}
+
+	// return temp list bubble sorted by students' first names, original unchanged
+	public  LinkedList< Student> sortByFn() {
+
+		 LinkedList< Student> modified = createTempList(); // create temp list to be returned
+
+		for (int i = 1; i < modified.getLength(); i++) {
+			for (int j = i; j <= modified.getLength(); j++) {
+				if (modified.findNode(i).getCargo().getFn().compareTo(modified.findNode(j).getCargo().getFn()) > 0) {
+
+					// switch cargos
+					 Student temp = modified.findNode(j).getCargo();
+					modified.set(j, modified.findNode(i).getCargo());
+					modified.set(i, temp);
+
+				} // use local "modified" so cannot write switch as separate method
+			}
+		}
+
+		return modified;
+
+	}
+
+	/*
+	 * return temp list sorted by students' last names, original list still stores
+	 * students in the order they were added, I've used bubble sort for this method
+	 */
+	public  LinkedList< Student> sortByLn() {
+
+		 LinkedList< Student> modified = createTempList();
+
+		for (int i = 1; i < modified.getLength(); i++) {
+			for (int j = i; j <= modified.getLength(); j++) { // get and compare last names using compareTo()
+				if (modified.findNode(i).getCargo().getLn().compareTo(modified.findNode(j).getCargo().getLn()) > 0) {
+
+					// switch cargos
+					 Student temp = modified.findNode(j).getCargo();
+					modified.set(j, modified.findNode(i).getCargo());
+					modified.set(i, temp);
+
+				}
+			}
+		}
+
+		return modified;
+	}
+
+	// return true if other (passed as parameter) is the same as this obj
+	public boolean equals(Object other) {
+
+		if (other == null) // null then not comparable
+			return false;
+
+		else if (this == other) // same address means the same
+			return true;
+
+		else if (other instanceof  Teacher) { // compare attributes return result
+			 Teacher ft = ( Teacher) other;
+			return super.equals(ft) && ft.subject.equals(this.subject) && ft.ID.equals(this.ID)
+					&& ft.password.equals(this.password) && ft.list.equals(this.list);
+		}
+
+		return false;
+
+	}
+
+	// returns information about the teacher obj as String
+	public String toString() {
+
+		return super.toString() + " " + subject.toLowerCase() + " teacher\nStudent list:\n\n" + list;
+
+	}
+}
