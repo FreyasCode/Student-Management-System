@@ -1,0 +1,62 @@
+/*
+ * This is the assessment class that stores the name and mark for an assessment such as a test, 
+ * assignment, essay, etc. There are two constructors: default and overloaded. Since the attributes 
+ * are encapsulated, getters and setters are available when needed. There is also toString for returning
+ * information about the object and equals for comparing this object with another Object. 
+ */
+
+public class Assessment implements java.io.Serializable {
+	private String title; // homework, assignment, test, quiz, exam
+	private float percentage; // mark for this assessment
+
+	// default constructor setting default values
+	public  Assessment() {
+		this.title = null;
+		this.percentage = 0;
+	}
+
+	// overloaded constructor assigning values to obj attributes
+	public  Assessment(String title, float percentage) {
+		this.title = title;
+		this.percentage = percentage;
+	}
+
+	// getter method for percentage
+	public float getPercentage() {
+		return percentage;
+	}
+
+	// setter method for setting percentage
+	public void setPercentage(float percentage) {
+		this.percentage = percentage;
+	}
+
+	// getter method for getting the title of the assessment
+	public String getTitle() {
+		return title;
+	}
+
+	// setter method for setting the title of the assessment
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	// return true if the obj calling is the same as parameter
+	public boolean equals(Object other) {
+		if (other == null) // null --> not comparable
+			return false;
+		else if (this == other) // same address means same obj
+			return true;
+		else if (other.getClass() == this.getClass()) { // compare attributes of the obj
+			 Assessment fa = ( Assessment) other;
+			return fa.getTitle().equals(this.getTitle()) && fa.getPercentage() == this.getPercentage();
+		}
+		return false;
+	}
+
+	// toString prints info about the object
+	public String toString() {
+		return title + "--" + percentage;
+	}
+
+}
