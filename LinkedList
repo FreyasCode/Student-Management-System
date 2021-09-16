@@ -1,0 +1,170 @@
+/*
+ * This is the LinkedList class where a linked list is build. This class includes methods for adding nodes, 
+ * removing nodes, setting nodes and finding nodes. toString() returns the entire linked list as a String. 
+ * Since the attributes are encapsulated, getters and setters are written as well. I've used generic type
+ * so it saves me later from casting objects. 
+ */ 
+
+public class LinkedList<T> implements java.io.Serializable {
+	private Node<T> head;
+	private int length; // can potentially be very long, so use int
+
+	// default constructor for setting default values
+	public LinkedList() {
+		this.head = null;
+		this.length = 0;
+	}
+
+	// overloaded constructor for assigning values to attributes of linked list
+	public LinkedList( Node<T> head) {
+		this.head = head;
+		this.length = 1;
+	}
+
+	// getter method return length as int
+	public int getLength() {
+		return length;
+	}
+
+	// method to return a node at the given index, assume index of head is 1
+	public  Node<T> findNode(int index) {
+
+		// temporary Node because we do not want to change the original head
+		 Node<T> temp = this.head;
+
+		// if index is too large or too small
+		if (index > length || index < 1) {
+
+			System.out.println("out of bounds");
+			return null;
+
+		} else {
+
+			// loop until the index is reached
+			for (int i = 1; i < index; i++) {
+				temp = temp.getNext();
+			}
+
+			return temp;
+		}
+	}
+
+	// method for setting a node's cargo
+	public void set(int index, T c) {
+
+		if (index > 0 && index <= length) // within bounds do this
+			findNode(index).setCargo(c);
+
+		else // out of bounds, test code
+			System.out.println("Index out of Bounds");
+
+	}
+
+	// this method takes an cargo Object and adds it to the given index into list
+	public void addNode(T c, int index) {
+		// creating the node with the given cargo, assume there is a constructor in Node
+		// that takes Object and assign it to cargo
+		 Node<T> add = new  Node<T>(c);
+
+		// adding the node to the head
+		if (index == 1) {
+			add.setNext(head); // the next node of add becomes the original head
+			head = add; // the head of the list is now the new node
+			length++; // increment the length since a new node is added
+		}
+
+		// within bounds (not including head, already handled) or adding a node right
+		// after the last node
+		else if (index > 1 && index <= this.length + 1) {
+			 Node<T> temp = findNode(index - 1); // accessing the previous node
+			add.setNext(temp.getNext()); // setting next of previous as next of new node
+			temp.setNext(add); // set next of previous node to new node
+			this.length++; // increment length since new node added to the list
+
+			// not within bounds
+		} else {
+			System.out.println("Index out of Bounds");
+		}
+	}
+
+	// method that adds a node to the end of the linked list
+	public void addLast(T c) {
+		addNode(c, length + 1); // calls the addNode method
+	}
+
+	// method that returns the removed node at the given index, assume head has
+	// index 1
+	public T removeNode(int index) {
+
+		T o; // temporary variable to store the removed cargo
+
+		if (index == 1 && this.length != 0) {
+
+			o = head.getCargo(); // store the removed head
+			head = head.getNext(); // head is now the next node of original head
+
+		} else if (index <= length && index > 1) {
+
+			 Node<T> temp = findNode(index - 1); // store previous node
+			o = temp.getNext().getCargo(); // store the cargo of the node to be removed
+			temp.setNext(temp.getNext().getNext()); // the next of removed node as next of previous node
+
+		} else { // element is not within the bounds
+			System.out.println("Node does not exist");
+			return null;
+		}
+
+		// when the code gets to this point, a node had been removed
+		this.length--;
+		return o;
+
+	}
+
+	// method returns true if other (parameter) is the same as this linked list
+	public boolean equals(Object other) {
+		if (this == other) { // compare address
+
+			return true;
+
+		}
+		if (other.getClass() == this.getClass()) { // compare each node
+
+			 LinkedList fl = ( LinkedList) other;
+
+			if (this.length == fl.length) { // if two lists same length
+
+				 Node thisNode = this.head; // temp variable
+				 Node otherNode = fl.head; // do not want to change original
+
+				for (int i = 1; i <= this.length; i++) {
+
+					if (!thisNode.equals(otherNode)) // not the same node
+						return false;
+
+					thisNode = thisNode.getNext(); // set to next
+					otherNode = otherNode.getNext();
+				}
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// toString that outputs all info of the linkedlist obj as (,,)
+	public String toString() {
+		String print = "";
+		 Node<T> node = head;
+
+		// loop through the linked list
+		while (node != null) {
+
+			print += node + "\n";
+			node = node.getNext();
+
+		}
+
+		return print;
+	}
+
+}
