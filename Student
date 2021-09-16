@@ -1,0 +1,77 @@
+/*
+ * This is the Student subclass inherited from the Person superclass. This class includes a 
+ * linked list to store the list of assessment the student has done, as well as an ID for the 
+ * student. A default and an overloaded constructor are included. There is a method for calculating
+ * the student's average using marks they received which are stored in the linked list called hw. 
+ * toString() and equals() to return information about the object and compare the object with another. 
+ * Lastly, since the attributes are encapsulated (declared private), getters and setters were written. 
+ */
+
+public class Student extends Person implements java.io.Serializable {
+
+	private  LinkedList< Assessment> hw; // list of assessment of this student
+	private String ID; // used stirng because ID might contain letters ex Shvfvfklv112233445
+
+	// default constructor that sets default value for student object including
+	// person super class attributes
+	public  Student() {
+		super();
+		this.ID = null;
+		this.hw = null;
+	}
+
+	// overloaded constructors that set values to the attributes of student (including person)
+	public  Student(String fn, String ln, String gender, byte age, String ID,  LinkedList< Assessment> hw) {
+		super(fn, ln, gender, age);
+		this.ID = ID;
+		this.hw = hw;
+	}
+
+	// getter method that returns the hw list as  LinkedList
+	public  LinkedList< Assessment> getHw() {
+		return hw;
+	}
+
+	// setter method for hw list
+	public void setHw( LinkedList< Assessment> hw) {
+		this.hw = hw;
+	}
+
+	// getter method that returns the student ID as a String
+	public String getID() {
+		return ID;
+	}
+
+	// setter method for student ID
+	public void setID(String iD) {
+		ID = iD;
+	}
+
+	// returns student's average (two dec) based on all their assessments, unweighed average
+	public float calcAverage() {
+		float sum = 0;
+		for (int i = 1; i <= hw.getLength(); i++) { // loop through the assessment list
+			sum += hw.findNode(i).getCargo().getPercentage();
+		}
+		return Math.round(sum / hw.getLength() * 100) / 100.0f;
+
+	}
+
+	// return true if other is the same as this object (same attributes)
+	public boolean equals(Object other) {
+		if (other == null) // null then not comparable
+			return false; 
+		else if (this == other) // same address same obj
+			return true;
+		else if (other instanceof  Student) { // compare the attributes 
+			 Student fs = ( Student) other;
+			return super.equals(fs) && fs.getID() == this.getID() && fs.getHw().equals(this.getHw());
+		}
+		return false;
+	}
+
+	// toString that returns information about the student object as String
+	public String toString() {
+		return "Student ID: " + ID + "\n" + super.toString() + " student\nList of Assessments:\n" + hw;
+	}
+}
