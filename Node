@@ -1,0 +1,67 @@
+/*
+ * This is the Node class where a node is constructed. A cargo of generic type is taken, and 
+ * the next node can also be stored. Since attributes are encapsulated, getters and setters 
+ * are written. 
+ */
+
+public class  Node<T> implements java.io.Serializable {
+	private T cargo; // cargo of generic type
+	private  Node<T> next; // stores the next node
+
+	// default constructor that sets default values for node
+	public  Node() {
+		this.cargo = null;
+		this.next = null;
+	}
+
+	// overloaded constructor gives node its attributes, take cargo
+	public  Node(T c) {
+		cargo = c;
+		next = null;
+	}
+
+	// overloaded constructor that takes cargo and next node
+	public  Node(T c,  Node<T> next) {
+		this.cargo = c;
+		this.next = next;
+	}
+
+	// getter method return cargo
+	public T getCargo() {
+		return cargo;
+	}
+
+	// setter method sets the cargo
+	public void setCargo(T c) {
+		this.cargo = c;
+	}
+
+	// getter method returns the next node
+	public  Node<T> getNext() {
+		return next;
+	}
+
+	// setter method sets the next node
+	public void setNext( Node<T> n) {
+		this.next = n;
+	}
+
+	// return true if other (parameter) node same as this node
+	public boolean equals(Object other) {
+		if (other == null) // check if other is null - not comparable
+			return false;
+		else if (this == other) // checking if address is the same
+			return true;
+		else if (other.getClass() == this.getClass()) {
+			 Node fn = ( Node) other;
+			return fn.cargo.equals(this.cargo);
+		}
+		return false;
+	}
+
+	// toString returns information about this node
+	public String toString() {
+		return cargo + "";
+	}
+
+}
