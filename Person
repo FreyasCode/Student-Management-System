@@ -1,0 +1,90 @@
+/*
+ * This is the superclass Person that stores the first name, last name, gender and age
+ * of the person. It consists of a default and an overloaded constructor. 
+ * The attributes are encapsulated and can be obtained using getter and setter methods. 
+ * Moreover, there are methods for comparing the person obj -- return true if the same
+ * and toString to return information about the object. 
+ * 
+ */
+public class Person implements java.io.Serializable {
+	private String fn; // first name
+	private String ln; // last name
+	private String gender; // gender: female, male, agender, cis... 52 types so use String
+	private byte age; // age as byte 
+
+	// default constructor for person obj
+	public Person() {
+		this.fn = null;
+		this.ln = null;
+		this.gender = null;
+		this.age = 0;
+	}
+
+	// overloaded constructor for the person obj that assigns values to attributes
+	public Person(String fn, String ln, String gender, byte age) {
+		this.fn = fn;
+		this.ln = ln;
+		this.gender = gender;
+		this.age = age;
+	}
+
+	// getter method that returns first name as a String
+	public String getFn() {
+		return fn;
+	}
+
+	// setter method that sets the first name
+	public void setFn(String fn) {
+		this.fn = fn;
+	}
+
+	// getter method that returns last name as a String
+	public String getLn() {
+		return ln;
+	}
+
+	// setter method that sets the last name
+	public void setLn(String ln) {
+		this.ln = ln;
+	}
+
+	// getter method that returns the gender of the person as a String
+	public String getGender() {
+		return gender;
+	}
+
+	// setter method that sets the gender of the person
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	// getter method that returns the age of the person as byte
+	public byte getAge() {
+		return age;
+	}
+
+	// setter method that sets the person's age
+	public void setAge(byte age) {
+		this.age = age;
+	}
+
+	// return true if other obj (parameter) is the same as this obj
+	public boolean equals(Object other) {
+		if (other == null) // if null, not comparable
+			return false;
+		else if (other == this) // if same address
+			return true;
+		else if (other instanceof Person) { // compare every single attribute
+			Person temp = (Person) other;
+			return temp.getFn().equals(this.getFn()) && temp.getLn().equals(this.getLn())
+					&& temp.getGender() == this.getGender() && temp.getAge() == this.getAge();
+		}
+		return false;
+	}
+
+	// toString returns information about the student obj as a String
+	public String toString() {
+		return fn.toUpperCase() + " " + ln.toUpperCase() + " is a " + gender.toLowerCase();
+	}
+
+}
