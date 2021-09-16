@@ -1,0 +1,919 @@
+/*
+ * This is the test class where the entire gui part is created. This class also includes methods for displaying
+ * trends and statistics about the students' marks. File IO was also used for storing and reading data into and 
+ * from txt files so user can log back in and access their stored information. 
+ * Wrote all gui code in this class else there is no content here
+ */
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+
+public class TestClass {
+	private JFrame addOrView, display; // frames
+	private  Teacher teacher; // teacher obj
+
+	private final byte FIRST_NODE = 1;
+	private final byte A = 90; // range for mark categories
+	private final byte B = 80;
+	private final byte C = 70;
+	private final byte D = 60;
+	private final byte E = 50;
+	private final byte MAX_PERCENTAGE = 100; // range for mark
+	private final byte MIN_PERCENTAGE = 0;
+	private final byte TEACHER_MAX_AGE = 65; // age range for teacher
+	private final byte TEACHER_MIN_AGE = 18;
+	private final byte STUDENT_MAX_AGE = 60; // age range for student
+	private final byte STUDENT_MIN_AGE = 6;
+
+	// main where the program is launched
+	public static void main(String[] args) {
+		 TestClass test = new  TestClass();
+		test.startUp();
+	}
+
+	// startup window -- choose to register or log in
+	public void startUp() {
+		// startup JFrame, setting basic properties
+		JFrame startUp = new JFrame("Start Up");
+		startUp.pack();
+		startUp.setLayout(null);
+		startUp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// panel created, put on the frame
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 750);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		startUp.getContentPane().add(myPanel);
+
+		// register button, set size, location, add to panel, add actionlistener
+		JButton register = new JButton("Register");
+		register.setSize(400, 250);
+		register.setLocation(50, 50);
+		myPanel.add(register);
+		register.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				register(); // open registration screen
+				startUp.setVisible(false);
+			}
+		});
+
+		// log in button, set size, location, add to panal, add actionlistener
+		JButton login = new JButton("Log in");
+		login.setSize(400, 250);
+		login.setLocation(50, 350);
+		myPanel.add(login);
+		login.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				logIn(); // open log in screen
+				startUp.setVisible(false);
+			}
+		});
+
+		// setting size, making start up window visible
+		startUp.setVisible(false);
+		startUp.setSize(500, 750);
+		startUp.setLocationRelativeTo(null);
+		startUp.setVisible(true);
+	}
+
+	// method to add students into the list in Teacher after teacher is registered
+	public void registerStudents() {
+		// frame initialized and set properties ex size, location, layout
+		JFrame registerStudent = new JFrame("Add Students");
+		registerStudent.setSize(500, 750);
+		registerStudent.setLocationRelativeTo(null);
+		registerStudent.setLayout(null);
+		registerStudent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		registerStudent.setVisible(true);
+
+		// panel added to frame with properties set
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 750);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		registerStudent.getContentPane().add(myPanel);
+
+		// title lable, set location, size, add to panel
+		JLabel title = new JLabel("Add Students", SwingConstants.CENTER);
+		title.setFont(new Font("Times New Romans", Font.BOLD, 50));
+		title.setBounds(30, 30, 420, 80);// location, size
+		myPanel.add(title);
+
+		// array of JLabels
+		JLabel[] labels = { new JLabel("First Name"), new JLabel("Last Name"), new JLabel("Age"), new JLabel("Gender"),
+				new JLabel("Student ID") };
+		short yLoc = 100; // starting yLoc
+		// adding labels using array
+		for (int i = 0; i < labels.length; i ++) {
+			labels[i].setBounds(28, yLoc, 100, 80); // set size, location
+			myPanel.add(labels[i]); // add to panel
+			yLoc += 80; // update y location for next label
+		}
+		
+		yLoc = 150; // starting yLoc
+		
+		final byte count = 5; // number of JTextFields
+		// array of JTextFields
+		JTextField[] txts = new JTextField[count]; // instantiate array
+		// instantiate, add JTextFields on panel
+		for (int i = 0; i < count; i ++) {
+			txts[i] = new JTextField(); // instantiate
+			txts[i].setSize(450, 50); // setting size
+			txts[i].setLocation(25, yLoc); // setting location
+			myPanel.add(txts[i]); // adding to panel
+			yLoc += 80; // update yLocation for next text field
+		}
+
+		// confirm button, set location, size, add to panel, add action listener
+		JButton confirm = new JButton("Confirm");
+		confirm.setSize(450, 70);
+		confirm.setLocation(25, 540);
+		myPanel.add(confirm);
+		confirm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				byte age = 0;
+				// check if enter string, decimal for age
+				try { // try to parse age from String to byte
+
+					age = Byte.parseByte(txts[2].getText());
+
+				} catch (Exception e1) {
+
+					System.out.println("Cannot parse"); // test code
+
+				}
+
+				// store textfield input as Strings
+				String firstName = txts[0].getText().trim();
+				String lastName = txts[1].getText().trim();
+				String gender = txts[3].getText().trim();
+				String id = txts[4].getText().trim();
+
+				// checking suitable age to be a student
+				if (age <= STUDENT_MAX_AGE && age >= STUDENT_MIN_AGE && !firstName.equals("") && !lastName.equals("")
+						&& !gender.equals("") && !id.equals("")) {
+					teacher.getList().addLast(new  Student(firstName, lastName, gender, age, id,
+							new  LinkedList< Assessment>()));
+					write(teacher, teacher.getID());
+					JOptionPane.showMessageDialog(null, "Succesfully Added!");
+					txts[0].setText("");
+					txts[1].setText("");
+					txts[2].setText("");
+					txts[3].setText("");
+					txts[4].setText("");
+
+					// if any text field is not filled up
+				} else if (firstName.equals("") || lastName.equals("") || gender.equals("") || id.equals("")
+						|| id.equals("")) {
+					JOptionPane.showMessageDialog(null, "Information must all be fill");
+
+					// not valid age for a student
+				} else {
+					JOptionPane.showMessageDialog(null, "Not a valid age");
+					txts[2].setText("");
+				}
+
+			}
+		});
+
+		// button when teacher is done adding students, set size, location, add to panel
+		JButton done = new JButton("Completed");
+		done.setSize(450, 70);
+		done.setLocation(25, 620);
+		myPanel.add(done);
+		done.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				registerStudent.setVisible(false);
+				addOrView(); // open selection page
+				System.out.println(teacher); // test code, print teacher obj
+			}
+		});
+
+	}
+
+	// page: teacher register with ID, password and user info (used to create
+	// Teacher obj)
+	public void register() {
+		// register frame initialized with properties set
+		JFrame register = new JFrame("Register");
+		register.setSize(500, 850);
+		register.setLocationRelativeTo(null);
+		register.setLayout(null);
+		register.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		register.setVisible(true);
+
+		// panel, set properties added to frame
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 850);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		register.getContentPane().add(myPanel);
+
+		// title lable, set location, size, font, add to panel
+		JLabel title = new JLabel("Register", SwingConstants.CENTER);
+		title.setFont(new Font("Times New Romans", Font.BOLD, 50));
+		title.setBounds(30, 30, 420, 80);// location, size
+		myPanel.add(title);
+
+		// array of JLabels
+		JLabel[] labels = { new JLabel("FirstName"), new JLabel("Last Name"), new JLabel("Age"), new JLabel("Gender"),
+				new JLabel("Teacher ID"), new JLabel("Password"), new JLabel("Teaching Subject") };
+		short yLoc = 100; // first y location
+		// adding labels on panel using loop 
+		for (int i = 0; i < labels.length; i++) {
+			labels[i].setBounds(28, yLoc, 500, 80); // set size, location
+			myPanel.add(labels[i]); // add label to panel
+			yLoc += 80; // update y location for next label
+		}
+
+		final byte numTxt = 7; // number of text fields 
+		yLoc = 150; /// first text field y location 
+		// array of JTextField
+		JTextField[] txts = new JTextField[numTxt];
+		// adding JTextFields on myPanel using loop
+		for (int i = 0; i < numTxt; i++) {
+			txts[i] = new JTextField(); // instantiate text field 
+			txts[i].setSize(450, 50); // set size 
+			txts[i].setLocation(25, yLoc); // set location
+			yLoc += 80; // update y location for next text field
+			myPanel.add(txts[i]); // add to panel
+		}
+
+		// confirm button, set location, size, add to panel, add action listener
+		JButton confirm = new JButton("Register");
+		confirm.setSize(450, 100);
+		confirm.setLocation(25, 700);
+		myPanel.add(confirm);
+		confirm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) { // when register button is clicked
+				byte age = 0;
+
+				// check if enter string, decimal for age
+				try {
+					age = Byte.parseByte(txts[2].getText());
+
+				} catch (Exception e1) {
+					System.out.println("Cannot parse"); // test code
+				}
+
+				// store entered values
+				String firstName = txts[0].getText().trim();
+				String lastName = txts[1].getText().trim();
+				String gender = txts[3].getText().trim();
+				String subject = txts[6].getText().trim();
+				String id = txts[4].getText().trim();
+				String pass = txts[5].getText().trim();
+
+				// checking legal age to be a teacher
+				if (age <= TEACHER_MAX_AGE && age >= TEACHER_MIN_AGE && !firstName.equals("") && !lastName.equals("")
+						&& !gender.equals("") && !subject.equals("") && !id.equals("") && !pass.equals("")) {
+
+					// String ID = txtID.getText().trim();
+					boolean success = create(id); // create new file for the user
+
+					// if registered, user does not already exist
+					if (success) {
+
+						teacher = new  Teacher(firstName, lastName, gender, age,
+								new  LinkedList< Student>(), subject, pass, id);
+						write(teacher, id);
+						register.setVisible(false);
+						registerStudents();
+
+					} else { // user already exists, lead to log in page
+
+						logIn();
+						register.setVisible(false);
+
+					}
+
+					// any missing info not filled up
+				} else if (firstName.equals("") || lastName.equals("") || gender.equals("") || subject.equals("")
+						|| id.equals("") || id.equals("") || pass.equals("")) {
+
+					JOptionPane.showMessageDialog(null, "Information must all be fill");
+
+					// age is not legal
+				} else {
+
+					JOptionPane.showMessageDialog(null, "Not a valid age");
+					txts[2].setText("");
+
+				}
+			}
+		});
+
+	}
+
+	// opens up the log in page
+	public void logIn() {
+		// log in frame initialized with its properties
+		JFrame login = new JFrame("Log in");
+		login.setSize(500, 750);
+		login.setLocationRelativeTo(null);
+		login.setLayout(null);
+		login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		login.setVisible(true);
+
+		// panel set properties added to frame
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 750);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		login.getContentPane().add(myPanel);
+
+		// title lable, set location, size, font, add to panel
+		JLabel title = new JLabel("Log In", SwingConstants.CENTER);
+		title.setFont(new Font("Times New Romans", Font.BOLD, 50));
+		title.setBounds(30, 30, 420, 80);// location, size
+		myPanel.add(title);
+		
+		// username text label, set location, size, add to panel
+		JLabel lblID = new JLabel("Teacher's ID");
+		lblID.setBounds(28, 100, 100, 80);
+		myPanel.add(lblID);
+
+		// username textbox, set location, size, add to panel
+		JTextField txtID = new JTextField();
+		txtID.setSize(450, 80);
+		txtID.setLocation(25, 160);
+		myPanel.add(txtID);
+
+		// password label, set location, size, add to panel
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setBounds(30, 250, 420, 80);
+		myPanel.add(lblPassword);
+
+		// password textbox, set location, size, add to panel
+		JTextField password = new JTextField();
+		password.setSize(450, 80);
+		password.setLocation(25, 310);
+		myPanel.add(password);
+
+		// confirm button, set location, size, add to panel, add action listener
+		JButton confirm = new JButton("Log in now");
+		confirm.setSize(450, 200);
+		confirm.setLocation(25, 450);
+		myPanel.add(confirm);
+		confirm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) { // when log in button is clicked
+
+				String ID = txtID.getText().trim();
+
+				// if not empty
+				if (!ID.trim().equals("")) {
+
+					readObj(ID); // read obj from file
+
+					// password filed is empty
+					if (teacher != null && password.getText().trim().equals("")) {
+
+						JOptionPane.showMessageDialog(null, "Password cannot be empty");
+
+						// correct password
+					} else if (teacher != null && teacher.getPassword().equals(password.getText().trim())) {
+
+						System.out.println("Teacher obj read : " + teacher);
+						JOptionPane.showMessageDialog(null, "Logged in succesfully");
+						login.setVisible(false);
+						addOrView();
+
+					} else if (teacher != null) { // wrong password
+
+						
+						JOptionPane.showMessageDialog(null, "Incorrect input in field password");
+
+					}
+				} else { // when ID field is not filled up
+					JOptionPane.showMessageDialog(null, "ID cannot be empty");
+				}
+
+			}
+		});
+	}
+
+	// gui for add assessment or view sorted data, two buttons for two screens
+	public void addOrView() {
+		// startup JFrame, initialize with its properties
+		addOrView = new JFrame("Next Action");
+		addOrView.setTitle("Next Action");
+		addOrView.pack();
+		addOrView.setLayout(null);
+		addOrView.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// panel where components are added on, added onto the frame
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 750);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		addOrView.getContentPane().add(myPanel);// , BorderLayout.NORTH);
+
+		// add button to add assessment records for students, set size, location, add to
+		// panel
+		JButton btnAdd = new JButton("Add assessment marks");
+		btnAdd.setSize(400, 250);
+		btnAdd.setLocation(50, 50);
+		myPanel.add(btnAdd);
+		btnAdd.addActionListener(new ActionListener() { // click to open screen to add to assessment records
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (teacher.getList().getLength() != 0) {
+					addAssessment();
+					addOrView.setVisible(false);
+				}
+			}
+		});
+
+		// initialize comboBox, set size, location, added to panel, add action listener
+		JComboBox comboBox = new JComboBox<String>(new String[] { "Most Recently added", "First Name", "Last Name",
+				"Average High to Low", "Average Low to High" });
+		comboBox.setBounds(50, 300, 400, 100);
+		myPanel.add(comboBox);
+		comboBox.setSelectedIndex(0);
+		comboBox.addActionListener(new ActionListener() {
+			// depending on which option was selected, corresponding info is displayed
+			public void actionPerformed(ActionEvent e) {
+				// display by order students were added
+				if (comboBox.getSelectedItem().equals("Most Recently added")) {
+
+					view(teacher.getList());
+					addOrView.setVisible(false);
+
+					// sort by first name and display
+				} else if (comboBox.getSelectedItem().equals("First Name")) {
+
+					view(teacher.sortByFn());
+					addOrView.setVisible(false);
+
+					// sort by last name and display
+				} else if (comboBox.getSelectedItem().equals("Last Name")) {
+
+					view(teacher.sortByLn());
+					addOrView.setVisible(false);
+
+					// sort by average from high to low
+				} else if (comboBox.getSelectedItem().equals("Average High to Low")) {
+
+					view(teacher.sortByAvH());
+					addOrView.setVisible(false);
+
+					// sort by average from low to high
+				} else {
+
+					view(teacher.sortByAvL());
+					addOrView.setVisible(false);
+
+				}
+			}
+		});
+
+		// button for viewing statistical measures and graph
+		JButton btnView = new JButton("View Stats");
+		btnView.setSize(400, 250);
+		btnView.setLocation(50, 400);
+		myPanel.add(btnView);
+		btnView.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				viewStats();
+			}
+		});
+
+		// set size, making frame visible
+		addOrView.setVisible(false);
+		addOrView.setSize(500, 750);
+		addOrView.setLocationRelativeTo(null);
+		addOrView.setVisible(true);
+	}
+
+	// adding new students' assessments, for every student
+	public void addAssessment() {
+		// initialize frame and its properties
+		JFrame addAssessment = new JFrame("Add to Record");
+		addAssessment.setSize(500, 750);
+		addAssessment.setLocationRelativeTo(null);
+		addAssessment.setLayout(null);
+		addAssessment.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		addAssessment.setVisible(true);
+
+		// panel, set size, location, added to frame
+		JPanel myPanel = new JPanel();
+		myPanel.setBackground(new Color(231, 232, 217));
+		myPanel.setSize(500, 750);
+		myPanel.setVisible(true);
+		myPanel.setLayout(null);
+		addAssessment.getContentPane().add(myPanel);
+
+		// title lable, set size, location, added to panel
+		JLabel title = new JLabel(
+				"1/" + teacher.getList().getLength() + " " + teacher.getList().findNode(FIRST_NODE).getCargo().getFn()
+						+ " " + teacher.getList().findNode(FIRST_NODE).getCargo().getLn(),
+				SwingConstants.CENTER);
+		title.setFont(new Font("Times New Romans", Font.BOLD, 30));
+		title.setBounds(30, 30, 420, 80);// location, size
+		myPanel.add(title);
+
+		// type label, set size, location, added to panel
+		JLabel lblType = new JLabel("What type of assessment is this?");
+		lblType.setBounds(28, 100, 450, 80);
+		myPanel.add(lblType);
+
+		// type textbox, set size, location, added to panel
+		JTextField txtType = new JTextField();
+		txtType.setSize(450, 80);
+		txtType.setLocation(25, 160);
+		myPanel.add(txtType);
+
+		// percentage label, set size, location, added to panel
+		JLabel lblPercentage = new JLabel("Mark as Percentage");
+		lblPercentage.setBounds(30, 250, 420, 80);
+		myPanel.add(lblPercentage);
+
+		// percentage textbox, set size, location, added to panel
+		JTextField txtPercentage = new JTextField();
+		txtPercentage.setSize(450, 80);
+		txtPercentage.setLocation(25, 310);
+		myPanel.add(txtPercentage);
+
+		byte[] numArr = { 1 }; // count variable: only way to be used locally
+
+		// confirm button, set size, location, add action listener
+		JButton confirm = new JButton("Add");
+		confirm.setSize(450, 200);
+		confirm.setLocation(25, 450);
+		myPanel.add(confirm);
+		confirm.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				float percentage = -1f;
+				try { // try to parse from String from textfield to float percentage
+
+					percentage = Math.round(Float.parseFloat(txtPercentage.getText()) * 100) / 100.0f;
+
+				} catch (Exception e1) {
+
+					System.out.println("Parsing did not work"); // test code
+
+				}
+
+				if (percentage <= MAX_PERCENTAGE && percentage >= MIN_PERCENTAGE && !txtType.getText().equals("")) { // if
+																														// within
+																														// valid
+																														// mark
+																														// range
+					// if not the last node
+					if (numArr[0] < teacher.getList().getLength()) {
+
+						// current person to add to assessment list
+						 Student temp = teacher.getList().findNode(numArr[0]).getCargo();
+						// next person to get name and display
+						 Student next = teacher.getList().findNode(++numArr[0]).getCargo();
+
+						// creating instance of Assessment and adding to hw linked list in Student
+						temp.getHw().addLast(new  Assessment(txtType.getText(), percentage));
+
+						// setting title to next person's name
+						title.setText((numArr[0]) + "/" + teacher.getList().getLength() + " " + next.getFn() + " "
+								+ next.getLn());
+
+						// emptying mark text field
+						txtPercentage.setText("");
+
+					} else { // last node, change the text on the button to Finish, set value
+
+						confirm.setText("Finish"); // change button text for the last person
+						// create instance and add to hw list
+						teacher.getList().findNode(numArr[0]).getCargo().getHw()
+								.addLast(new  Assessment(txtType.getText(), percentage));
+						addOrView.setVisible(true); // back to selection page
+						System.out.println(teacher); // test code: output teacher obj
+						write(teacher, teacher.getID()); // update file obj
+						addAssessment.setVisible(false); // hiding this page
+
+					}
+				} else if (txtType.getText().equals("")) {
+					JOptionPane.showMessageDialog(null, "All information must be filled");
+				} else { // if not, re-enter alert and set txtbox empty
+
+					JOptionPane.showMessageDialog(null, "Please enter a valid mark");
+					txtPercentage.setText("");
+
+				}
+			}
+		});
+
+	}
+
+	// view reordered records as JList on a separate window
+	public void view( LinkedList< Student> temp) {
+		// initializing frame's properties
+		display = new JFrame();
+		display.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		display.setTitle("View Records");
+
+		// label that display info about the selected obj
+		JLabel lblShow = new JLabel("Information is Displayed Here");
+
+		// panels
+		JPanel buttonPanel = new JPanel(); // bottom panel: display ranked object with names
+		JPanel top = new JPanel(); // back button put here
+
+		// used to get content pane and add panels
+		display.getContentPane().add(top, BorderLayout.NORTH);
+		display.getContentPane().add(buttonPanel, BorderLayout.CENTER);
+
+		// array of full names
+		String[] displayNames = new String[temp.getLength()];
+		for (int i = 1; i <= temp.getLength(); i++) {
+			displayNames[i - 1] = temp.findNode(i).getCargo().getFn() + " " + temp.findNode(i).getCargo().getLn();
+		}
+
+		// adding list to panel
+		JList list = new JList(displayNames);
+		JScrollPane scrollPane = new JScrollPane(list);
+		buttonPanel.add(scrollPane);// , new FlowLayout());
+		// action listener for JList
+		list.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					final List<String> selectedValuesList = list.getSelectedValuesList();
+					// String sub = selectedValuesList.get(0);
+					int i = list.getSelectedIndex();
+
+					lblShow.setText(
+							"<html>" + temp.findNode(i + 1).getCargo().toString().replace("\n", "<br>") + "</html>");
+					System.out.println("index at: " + i);
+					System.out.println(selectedValuesList);
+				}
+			}
+		});
+
+		// adding label to button panel, beside JList
+		buttonPanel.add(lblShow);
+
+		// create and add back button to top panel
+		JButton back = new JButton("Back to Menu");
+		back.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addOrView.setVisible(true);
+				// display.remove(scrollPane);
+				display.dispose();
+				display = null;
+
+			}
+
+		});
+		top.add(back);
+
+		// making view window visible, setting size and location
+		display.pack();
+		display.setSize(500, 400);
+		display.setLocationRelativeTo(null);
+		display.setVisible(true);
+
+	}
+
+	// method that displays graph and stats on a frame
+	public void viewStats() {
+		// creating frame that will constain the graph and stats label
+		JFrame f = new JFrame("Class Average Distribution");
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		// chart panel added to frame
+		final ChartPanel chartPanel = new ChartPanel(null);
+		chartPanel.setChart(runGraph("Class Average Distribution", "Range", "Frequency")); // set chart using runGraph
+		f.add(chartPanel);
+
+		// label to display stats
+		f.add(new JLabel("<html>Class Average: " + teacher.calcAverage() + "<br>Class Median: " + teacher.median()
+				+ "<br>Mode (0.0 = no mode): " + teacher.mode() + "<br>Standard Deviation: " + teacher.stDev()
+				+ "</html>"), BorderLayout.SOUTH);
+
+		// making frame visible
+		f.pack();
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+	}
+
+	// helper method: creating JFreeChart and returned
+	private JFreeChart runGraph(String chartTitle, String xLabel, String yLabel) {
+
+		// create JFreeChart
+		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, xLabel, yLabel, createDataset(categorize()),
+				PlotOrientation.VERTICAL, true, false, false);
+
+		return barChart; // chart returned
+	}
+
+	// helper method: create array containing individual averages and return
+	private float[] convertToArr() {
+
+		float[] temp = new float[teacher.getList().getLength()]; // create temp arr
+		// same length as list
+
+		for (int i = 1; i <= teacher.getList().getLength(); i++) { // loop through list
+
+			temp[i - 1] = teacher.getList().findNode(i).getCargo().calcAverage();
+
+		}
+
+		return temp; // returned as array of float values (averages)
+	}
+
+	// helper method: creating data set stored as DefaultCategoryDataset and
+	// returned
+	private CategoryDataset createDataset(int[] arr) {
+
+		// local final data declaration
+		final String[] cat = { "0 ~ 49", "50 ~ 59", "60 ~ 69", "70 ~ 79", "80 ~ 89", "90 ~ 100" };
+		final String y = "Frequency Count";
+		final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+		// loop through categorized data and add values into dataset
+		for (int i = 0; i < arr.length; i++) {
+			dataset.addValue(arr[i], y, cat[i]);
+		}
+
+		return dataset;
+	}
+
+	// helper method: categorize data into frequency counts
+	private int[] categorize() {
+
+		float[] marks = convertToArr(); // looped through linked list and put average into array
+		int[] categories = { 0, 0, 0, 0, 0, 0 };
+
+		// loop through mark of each student, count for given ranges
+		for (float mark : marks) {
+			if (mark >= A) // >= 90
+				categories[5]++;
+			else if (mark >= B) // >= 80
+				categories[4]++;
+			else if (mark >= C) // >= 70
+				categories[3]++;
+			else if (mark >= D) // >= 60
+				categories[2]++;
+			else if (mark >= E) // >= 50
+				categories[1]++;
+			else
+				categories[0]++;
+		}
+
+		return categories;
+	}
+
+	// read obj from file
+	public void readObj(String fileName) {
+		// String fileName = "D:/newHello.txt";
+		ObjectInputStream in = null;
+		try {
+
+			// try to open the file and read obj from the file
+			in = new ObjectInputStream(new FileInputStream(
+					"/Users/ zhang/eclipse-workspace/StudentManagementSystem/src/" + fileName + ".txt"));
+			teacher = ( Teacher) in.readObject();
+
+		} catch (ClassNotFoundException e) {
+
+			System.out.println("Error: Object's Class does not match");
+
+		} catch (FileNotFoundException e) {
+
+			JOptionPane.showMessageDialog(null, "User not found");
+			teacher = null; 
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Error: Cannot read from file");
+
+		} finally {
+			// attempt closing file
+			try {
+				in.close();
+			} catch (Exception e) {
+				System.out.println("Exception");
+			}
+//			catch (FileNotFoundException e) {
+//			}
+//				System.out.println("File not found");
+//			} catch (IOException e) {
+//				System.out.println("User not found");
+//			}
+		}
+
+	}
+
+	// creating new files, return true if successfully created
+	public boolean create(String fileName) {
+		try {
+			// open file
+			File file = new File(
+					"/Users/ zhang/eclipse-workspace/StudentManagementSystem/src/" + fileName + ".txt");
+
+			// if new file succesfully created
+			if (file.createNewFile()) {
+				System.out.println("File created: " + file.getName());
+				return true;
+
+				// file already exists
+			} else {
+				System.out.println("File already exists.");
+				JOptionPane.showMessageDialog(null, "User already exists, please log in.");
+				return false;
+
+			}
+
+		} catch (IOException ioe) {
+
+			System.out.println("An error occurred.");
+			ioe.printStackTrace();
+
+		}
+		return false;
+	}
+
+	// write to file the object "code"
+	public static void write(Object obj, String fileName) {
+
+		// made null first so can be accessed under finally
+		FileOutputStream ofs = null;
+		ObjectOutputStream oos = null;
+
+		try {
+
+			ofs = new FileOutputStream(new File(
+					"/Users/ zhang/eclipse-workspace/StudentManagementSystem/src/" + fileName + ".txt"));
+			oos = new ObjectOutputStream(ofs);
+			oos.writeObject(obj); // write the obj into the file
+
+		} catch (FileNotFoundException e) {
+
+			System.out.println("Error: Cannot open file for writing");
+
+		} catch (IOException e) {
+
+			System.out.println("Error: Cannot write to file");
+
+		} finally { // make an attempt to close the file
+
+			try {
+				oos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				ofs.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+}
