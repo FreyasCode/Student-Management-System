@@ -4,8 +4,7 @@ Welcome to SMS (Student Management System)!
 
 This is a program designed for teachers. The program can display student names alphabetically, by grades, or student ID, alongside assignments and their associated grades, class average, median, and mode. Additionally, teachers can go into "Visualization" mode and view students' marks displayed as Bar Graph, Line Graph, Pie Chart, etc. 
 
-This program was coded using Java. Concepts such as inheritance 
-I have utilized concepts including inheri
+This program was coded using Java. Concepts such as inheritance and encapsulation were extensively used. A Linked List was also implemented from scratch. Numerous sorting algorithms were used, including insertion sort, selection sort, quick sort. 
 
 
 Side note: to add JFreeChart library to your Java Project, which is required for this program to run: 
