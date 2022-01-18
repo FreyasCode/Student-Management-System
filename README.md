@@ -1,5 +1,12 @@
 # Student-Management-System
-To add JFreeChart library to your Java Project, which is required for this program to run: 
+
+Welcome to SMS (Student Management System)! 
+
+This is a program designed for teachers. The program can display student names alphabetically, by grades, or student ID, alongside assignments and their associated grades, class average, median, and mode. Additionally, teachers can go into "Visualization" mode and view students' marks displayed as Bar Graph, Line Graph, Pie Chart, etc. 
+
+
+
+Side note: to add JFreeChart library to your Java Project, which is required for this program to run: 
 
 1. place jfreechart jars somewhere on your hard drive. 
 
